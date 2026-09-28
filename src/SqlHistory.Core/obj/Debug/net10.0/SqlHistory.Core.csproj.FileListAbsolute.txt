@@ -1,0 +1,11 @@
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\bin\Debug\net10.0\SqlHistory.Core.deps.json
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\bin\Debug\net10.0\SqlHistory.Core.dll
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\bin\Debug\net10.0\SqlHistory.Core.pdb
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\SqlHistory.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\SqlHistory.Core.AssemblyInfoInputs.cache
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\SqlHistory.Core.AssemblyInfo.cs
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\SqlHistory.Core.csproj.CoreCompileInputs.cache
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\SqlHistory.Core.dll
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\refint\SqlHistory.Core.dll
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\SqlHistory.Core.pdb
+C:\Users\NickAbuladze\Desktop\SqlHistory\src\SqlHistory.Core\obj\Debug\net10.0\ref\SqlHistory.Core.dll

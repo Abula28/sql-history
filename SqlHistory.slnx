@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SqlHistory.Cli/SqlHistory.Cli.csproj" />
+    <Project Path="src/SqlHistory.Core/SqlHistory.Core.csproj" />
+    <Project Path="src/SqlHistory.SqlServer/SqlHistory.SqlServer.csproj" />
+  </Folder>
+</Solution>
