@@ -2,37 +2,70 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using SqlHistory.Core.Services;
+using SqlHistory.Core.Abstractions;
+using SqlHistory.SqlServer;
 
-var builder = new ConfigurationBuilder();
-BuildConfig(builder);
+var configurationBuilder = new ConfigurationBuilder();
+
+BuildConfig(configurationBuilder);
+
+var configuration = configurationBuilder.Build();
 
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Build())
+    .ReadFrom.Configuration(configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateLogger();
 
-Log.Logger.Information("Application Starting...");
+try
+{
+    Log.Information("Application starting...");
 
-var host = Host.CreateDefaultBuilder()
-    .ConfigureServices((context, services) =>
-    {
-        services.AddScoped<TestService>();
-    })
-    .UseSerilog()
-    .Build();
+    var host = Host.CreateDefaultBuilder(args)
+        .UseSerilog()
+        .ConfigureServices((context, services) =>
+        {
+            services.AddScoped<
+                IStoredProcedureReader,
+                SqlServerStoreProceduresReader>();
+            services.AddScoped<ApplicationRunner>();
+            services.AddSingleton(_ =>
+            {
+                var connectionString = configuration.GetValue<string>("ServerConnectionString");
+                if (string.IsNullOrWhiteSpace(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Connection string 'ServerConnectionString' is not configured.");
+                }
 
-var svc = ActivatorUtilities.CreateInstance<TestService>(host.Services);
+                return new SqlServerConnectionFactory(connectionString);
+            });
+        })
+        .Build();
 
-svc.Run();
+    using var scope = host.Services.CreateScope();
 
+    var service = scope.ServiceProvider.GetRequiredService<ApplicationRunner>();
 
+    await service.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly.");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 static void BuildConfig(IConfigurationBuilder builder)
 {
-    builder.SetBasePath(AppContext.BaseDirectory)
+    builder
+        .SetBasePath(AppContext.BaseDirectory)
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+        .AddJsonFile(
+            $"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}.json",
+            optional: true)
+        .AddUserSecrets<Program>(optional: true)
         .AddEnvironmentVariables();
 }

@@ -8,7 +8,7 @@ public class StoredProcedureDefinition
 
     public required string ProcedureName { get; init; }
 
-    public required string Definition { get; init; }
+    public required string? Definition { get; init; }
 
     public required DateTime CreatedAt { get; init; }
 
