@@ -5,7 +5,7 @@ using Serilog;
 using SqlHistory.Cli;
 using SqlHistory.Core.Abstractions;
 using SqlHistory.SqlServer;
-using SqlHistory.SqlServer.StoreProcedures;
+using SqlHistory.SqlServer.StoredProcedures;
 
 var configurationBuilder = new ConfigurationBuilder();
 
@@ -29,7 +29,7 @@ try
         {
             services.AddScoped<
                 IStoredProcedureReader,
-                SqlServerStoreProceduresReader>();
+                SqlServerStoredProceduresReader>();
             services.AddScoped<ApplicationRunner>();
             services.AddSingleton(_ =>
             {

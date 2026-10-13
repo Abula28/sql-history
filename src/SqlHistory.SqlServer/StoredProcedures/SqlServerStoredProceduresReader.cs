@@ -4,17 +4,17 @@ using SqlHistory.Core.Abstractions;
 using SqlHistory.Core.Models;
 using SqlHistory.SqlServer;
 
-namespace SqlHistory.SqlServer.StoreProcedures;
+namespace SqlHistory.SqlServer.StoredProcedures;
 
-public sealed class SqlServerStoreProceduresReader
+public sealed class SqlServerStoredProceduresReader
     : IStoredProcedureReader
 {
     private readonly SqlServerConnectionFactory _connectionFactory;
-    private readonly ILogger<SqlServerStoreProceduresReader> _logger;
+    private readonly ILogger<SqlServerStoredProceduresReader> _logger;
 
-    public SqlServerStoreProceduresReader(
+    public SqlServerStoredProceduresReader(
         SqlServerConnectionFactory connectionFactory,
-        ILogger<SqlServerStoreProceduresReader> logger)
+        ILogger<SqlServerStoredProceduresReader> logger)
     {
         _connectionFactory = connectionFactory;
         _logger = logger;
