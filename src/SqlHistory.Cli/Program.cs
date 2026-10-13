@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using SqlHistory.Cli;
 using SqlHistory.Core.Abstractions;
 using SqlHistory.SqlServer;
+using SqlHistory.SqlServer.StoreProcedures;
 
 var configurationBuilder = new ConfigurationBuilder();
 

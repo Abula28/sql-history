@@ -1,5 +1,6 @@
 ﻿using SqlHistory.Core.Abstractions;
 
+namespace SqlHistory.Cli;
 public sealed class ApplicationRunner
 {
     private readonly IStoredProcedureReader _storedProcedureReader;

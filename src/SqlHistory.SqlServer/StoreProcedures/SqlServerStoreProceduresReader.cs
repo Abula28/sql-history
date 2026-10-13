@@ -4,6 +4,8 @@ using SqlHistory.Core.Abstractions;
 using SqlHistory.Core.Models;
 using SqlHistory.SqlServer;
 
+namespace SqlHistory.SqlServer.StoreProcedures;
+
 public sealed class SqlServerStoreProceduresReader
     : IStoredProcedureReader
 {
