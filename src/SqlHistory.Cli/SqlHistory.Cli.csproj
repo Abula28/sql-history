@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SqlHistory.Core\SqlHistory.Core.csproj" />
     <ProjectReference Include="..\SqlHistory.SqlServer\SqlHistory.SqlServer.csproj" />
+    <ProjectReference Include="..\SqlHistory.Storage.Sqlite\SqlHistory.Storage.Sqlite.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -10,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />

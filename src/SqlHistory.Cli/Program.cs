@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -7,6 +8,7 @@ using SqlHistory.Core.Abstractions;
 using SqlHistory.SqlServer;
 using SqlHistory.SqlServer.StoredProcedures;
 using SqlHistory.Core.Versioning;
+using SqlHistory.Storage.Sqlite.Persistence;
 
 var configurationBuilder = new ConfigurationBuilder();
 
@@ -28,6 +30,12 @@ try
         .UseSerilog()
         .ConfigureServices((context, services) =>
         {
+            services.AddDbContext<SqlHistoryDbContext>(options =>
+            {
+                options.UseSqlite(
+                    context.Configuration.GetConnectionString("SqlHistoryStorage")
+                    );
+            });
             services.AddScoped<
                 IStoredProcedureReader,
                 SqlServerStoredProceduresReader>();
