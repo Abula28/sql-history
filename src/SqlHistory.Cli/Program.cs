@@ -6,6 +6,7 @@ using SqlHistory.Cli;
 using SqlHistory.Core.Abstractions;
 using SqlHistory.SqlServer;
 using SqlHistory.SqlServer.StoredProcedures;
+using SqlHistory.Core.Versioning;
 
 var configurationBuilder = new ConfigurationBuilder();
 
@@ -42,6 +43,8 @@ try
 
                 return new SqlServerConnectionFactory(connectionString);
             });
+            services.AddSingleton(TimeProvider.System);
+            services.AddSingleton<StoredProcedureSnapshotFactory>();
         })
         .Build();
 

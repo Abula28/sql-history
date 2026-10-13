@@ -4,4 +4,7 @@
     <Project Path="src/SqlHistory.Core/SqlHistory.Core.csproj" />
     <Project Path="src/SqlHistory.SqlServer/SqlHistory.SqlServer.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="SqlHistory.Core.Tests/SqlHistory.Core.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,20 +1,25 @@
 ﻿using SqlHistory.Core.Abstractions;
+using SqlHistory.Core.Models;
+using SqlHistory.Core.Versioning;
 
 namespace SqlHistory.Cli;
 
 public sealed class ApplicationRunner
 {
     private readonly IStoredProcedureReader _storedProcedureReader;
+    private readonly StoredProcedureSnapshotFactory _storedProcedureSnapshotFactory;
 
-    public ApplicationRunner(IStoredProcedureReader storedProcedureReader)
+    public ApplicationRunner(IStoredProcedureReader storedProcedureReader, StoredProcedureSnapshotFactory storedProcedureSnapshotFactory)
     {
         _storedProcedureReader = storedProcedureReader;
+        _storedProcedureSnapshotFactory = storedProcedureSnapshotFactory;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         var procedures = await _storedProcedureReader
             .GetStoredProceduresAsync(cancellationToken);
+        
 
         if (procedures.Count == 0)
         {
@@ -27,20 +32,20 @@ public sealed class ApplicationRunner
 
         foreach (var procedure in procedures)
         {
-            Console.WriteLine(
-                $"{procedure.SchemaName}.{procedure.ProcedureName}");
+            var snapshot =
+                _storedProcedureSnapshotFactory.Create(procedure);
 
             Console.WriteLine(
-                $"Object ID: {procedure.ObjectId}");
+                $"{snapshot.SchemaName}.{snapshot.ProcedureName}");
 
             Console.WriteLine(
-                $"Created: {procedure.CreatedAt}");
+                $"Hash: {snapshot.DefinitionHash[..12]}");
 
             Console.WriteLine(
-                $"Modified: {procedure.ModifiedAt}");
+                $"Modified: {snapshot.ModifiedAt}");
 
             Console.WriteLine(
-                $"Definition length: {procedure.Definition?.Length ?? 0}");
+                $"Captured: {snapshot.CapturedAtUtc} UTC");
 
             Console.WriteLine();
         }
