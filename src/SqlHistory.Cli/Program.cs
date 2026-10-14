@@ -9,6 +9,7 @@ using SqlHistory.SqlServer;
 using SqlHistory.SqlServer.StoredProcedures;
 using SqlHistory.Core.Versioning;
 using SqlHistory.Storage.Sqlite.Persistence;
+using SqlHistory.Storage.Sqlite.Repositories;
 
 var configurationBuilder = new ConfigurationBuilder();
 
@@ -30,16 +31,24 @@ try
         .UseSerilog()
         .ConfigureServices((context, services) =>
         {
+            services.AddSingleton(TimeProvider.System);
+
             services.AddDbContext<SqlHistoryDbContext>(options =>
             {
                 options.UseSqlite(
                     context.Configuration.GetConnectionString("SqlHistoryStorage")
-                    );
+                );
             });
+
+
             services.AddScoped<
                 IStoredProcedureReader,
                 SqlServerStoredProceduresReader>();
-            services.AddScoped<ApplicationRunner>();
+
+
+            services.AddSingleton<StoredProcedureSnapshotFactory>();
+            services.AddSingleton<StoredProcedureChangeDetector>();
+
             services.AddSingleton(_ =>
             {
                 var connectionString = configuration.GetValue<string>("ServerConnectionString");
@@ -51,12 +60,17 @@ try
 
                 return new SqlServerConnectionFactory(connectionString);
             });
-            services.AddSingleton(TimeProvider.System);
-            services.AddSingleton<StoredProcedureSnapshotFactory>();
+
+            services.AddScoped<IStoredProcedureHistoryRepository, StoredProcedureHistoryRepository>();
+
+            services.AddScoped<ApplicationRunner>();
         })
         .Build();
 
     using var scope = host.Services.CreateScope();
+
+    var dbContext = scope.ServiceProvider.GetRequiredService<SqlHistoryDbContext>();
+    await dbContext.Database.MigrateAsync();
 
     var service = scope.ServiceProvider.GetRequiredService<ApplicationRunner>();
 
