@@ -7,6 +7,10 @@ using SqlHistory.Core.Versioning;
 using SqlHistory.Hackathon.AiAnalysis;
 using SqlHistory.Hackathon.Api;
 using SqlHistory.Hackathon.Api.Endpoints;
+using SqlHistory.Hackathon.Api.Performance;
+using SqlHistory.Hackathon.Api.QueryPlans;
+using SqlHistory.Hackathon.Api.Telemetry;
+using SqlHistory.Hackathon.Api.Tracing;
 using SqlHistory.PostgreSql;
 using SqlHistory.PostgreSql.Routines;
 using SqlHistory.Storage.Sqlite.Persistence;
@@ -22,14 +26,11 @@ if (string.IsNullOrWhiteSpace(sourceConnectionString))
     throw new InvalidOperationException("Connection string 'SourceDatabase' is not configured.");
 }
 
-// History database (SQLite). A relative path is resolved against the project directory,
-// so the same file is used no matter where the API is started from.
-var historyConnection = new SqliteConnectionStringBuilder(
-    builder.Configuration.GetConnectionString("SqlHistoryStorage"));
-if (!Path.IsPathRooted(historyConnection.DataSource))
-{
-    historyConnection.DataSource = Path.Combine(builder.Environment.ContentRootPath, historyConnection.DataSource);
-}
+// History database (SQLite).
+var historyConnection = SqliteInContentRoot("SqlHistoryStorage");
+
+// Statistics samples, plan snapshots and trace spans: a separate file, safe to delete.
+var telemetryConnection = SqliteInContentRoot("Telemetry");
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<StoredProcedureSnapshotFactory>();
@@ -47,6 +48,15 @@ builder.Services.AddScoped<SnapshotScanService>();
 builder.Services.AddScoped<RoutineQueries>();
 builder.Services.AddSingleton<HistoryCoordinator>();
 builder.Services.AddHostedService<AutoScanService>();
+
+builder.Services.AddDbContext<TelemetryDbContext>(options =>
+    options.UseSqlite(telemetryConnection.ToString()));
+builder.Services.AddSingleton<PostgresStatsReader>();
+builder.Services.AddSingleton<PerformanceSampler>();
+builder.Services.AddScoped<PerformanceTrends>();
+builder.Services.AddHostedService<PerformanceSamplingService>();
+builder.Services.AddSingleton<PlanExplainer>();
+builder.Services.AddScoped<TraceIngestion>();
 
 var aiOptions = builder.Configuration.GetSection(AiAnalysisOptions.SectionName).Get<AiAnalysisOptions>()
                 ?? new AiAnalysisOptions();
@@ -85,6 +95,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<SqlHistoryDbContext>();
     await dbContext.Database.MigrateAsync();
+    await scope.ServiceProvider.GetRequiredService<TelemetryDbContext>().Database.EnsureCreatedAsync();
 }
 
 app.Logger.LogInformation("History database: {Path}", historyConnection.DataSource);
@@ -104,5 +115,21 @@ app.MapRoutineEndpoints();
 app.MapScanEndpoints();
 app.MapAnalysisEndpoints();
 app.MapRollbackEndpoints();
+app.MapPerformanceEndpoints();
+app.MapPlanEndpoints();
+app.MapTraceEndpoints();
 
 app.Run();
+
+// A relative SQLite path is resolved against the project directory, so the same file is used
+// no matter where the API is started from.
+SqliteConnectionStringBuilder SqliteInContentRoot(string name)
+{
+    var connection = new SqliteConnectionStringBuilder(builder.Configuration.GetConnectionString(name));
+    if (!Path.IsPathRooted(connection.DataSource))
+    {
+        connection.DataSource = Path.Combine(builder.Environment.ContentRootPath, connection.DataSource);
+    }
+
+    return connection;
+}

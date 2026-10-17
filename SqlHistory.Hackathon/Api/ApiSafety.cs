@@ -45,6 +45,9 @@ public sealed class ApiExceptionHandler : IExceptionHandler
     {
         var (status, detail) = exception switch
         {
+            // A SQL error from a reachable server; NpgsqlException alone means it could not be reached.
+            PostgresException ex => (StatusCodes.Status502BadGateway,
+                $"PostgreSQL returned an error: {ex.MessageText}"),
             NpgsqlException ex => (StatusCodes.Status503ServiceUnavailable,
                 $"The PostgreSQL source database is unavailable: {ex.Message}"),
             _ => (StatusCodes.Status500InternalServerError,

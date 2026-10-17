@@ -2,6 +2,8 @@
   <Folder Name="/hackathon/">
     <Project Path="SqlHistory.Hackathon/AiAnalysis/SqlHistory.Hackathon.AiAnalysis.csproj" />
     <Project Path="SqlHistory.Hackathon/Api/SqlHistory.Hackathon.Api.csproj" />
+    <Project Path="SqlHistory.Hackathon/DemoApi/SqlHistory.Hackathon.DemoApi.csproj" />
+    <Project Path="SqlHistory.Hackathon/LoadTest/SqlHistory.Hackathon.LoadTest.csproj" />
     <Project Path="SqlHistory.Hackathon/Tests/SqlHistory.Hackathon.Tests.csproj" />
   </Folder>
   <Folder Name="/src/">

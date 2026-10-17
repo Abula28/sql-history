@@ -6,8 +6,9 @@ import { CompareTab } from './CompareTab'
 import { HistoryTab } from './HistoryTab'
 import { RollbackDialog } from './RollbackDialog'
 import { SqlView } from './SqlEditors'
+import { RoutineObservabilityTab } from '../features/tracing/RoutineObservabilityTab'
 
-type Tab = 'definition' | 'history' | 'compare' | 'ai'
+type Tab = 'definition' | 'history' | 'compare' | 'ai' | 'observed'
 
 const stateText = {
   Untracked: 'Not scanned yet',
@@ -21,9 +22,12 @@ interface RoutinePanelProps {
   refreshKey: number
   status: Status | null
   onRestored: () => void
+  onOpenRoutine: (id: string) => void
+  onOpenTraces: () => void
+  onOpenPlan: (key: string) => void
 }
 
-export function RoutinePanel({ routineId, refreshKey, status, onRestored }: RoutinePanelProps) {
+export function RoutinePanel({ routineId, refreshKey, status, onRestored, onOpenRoutine, onOpenTraces, onOpenPlan }: RoutinePanelProps) {
   const detail = useApi(() => api.routine(routineId), [routineId, refreshKey])
   const versions = useApi(() => api.versions(routineId), [routineId, refreshKey])
 
@@ -86,6 +90,7 @@ export function RoutinePanel({ routineId, refreshKey, status, onRestored }: Rout
         <TabButton tab="history" current={tab} onClick={setTab}>History ({versionList.length})</TabButton>
         <TabButton tab="compare" current={tab} onClick={setTab}>Compare</TabButton>
         <TabButton tab="ai" current={tab} onClick={setTab}>AI Review</TabButton>
+        <TabButton tab="observed" current={tab} onClick={setTab}>Observed</TabButton>
       </nav>
 
       {versions.error && <div className="message error">{versions.error}</div>}
@@ -147,6 +152,16 @@ export function RoutinePanel({ routineId, refreshKey, status, onRestored }: Rout
         ) : (
           <div className="empty">AI review needs two versions to compare.</div>
         ))}
+
+      {tab === 'observed' && (
+        <RoutineObservabilityTab
+          routineId={routineId}
+          refreshKey={refreshKey}
+          onOpenTraces={onOpenTraces}
+          onOpenRoutine={onOpenRoutine}
+          onOpenPlan={onOpenPlan}
+        />
+      )}
 
       {restoreVersion !== null && (
         <RollbackDialog

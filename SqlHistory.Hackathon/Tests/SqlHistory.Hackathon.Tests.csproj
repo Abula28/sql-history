@@ -19,6 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="Fixtures\*.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\AiAnalysis\SqlHistory.Hackathon.AiAnalysis.csproj" />
       <ProjectReference Include="..\Api\SqlHistory.Hackathon.Api.csproj" />
     </ItemGroup>
