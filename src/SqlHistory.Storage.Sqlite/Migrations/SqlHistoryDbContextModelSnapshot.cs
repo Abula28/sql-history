@@ -26,7 +26,7 @@ namespace SqlHistory.Storage.Sqlite.Migrations
                     b.Property<DateTime>("CapturedAtUtc")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Definition")
@@ -37,15 +37,29 @@ namespace SqlHistory.Storage.Sqlite.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ModifiedAt")
+                    b.Property<string>("IdentityArguments")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ObjectId")
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("ObjectId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ProcedureName")
                         .IsRequired()
                         .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoutineType")
+                        .IsRequired()
+                        .HasMaxLength(16)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SchemaName")
@@ -58,9 +72,9 @@ namespace SqlHistory.Storage.Sqlite.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SchemaName", "ProcedureName");
+                    b.HasIndex("Provider", "SchemaName", "ProcedureName", "RoutineType", "IdentityArguments");
 
-                    b.HasIndex("SchemaName", "ProcedureName", "VersionNumber")
+                    b.HasIndex("Provider", "SchemaName", "ProcedureName", "RoutineType", "IdentityArguments", "VersionNumber")
                         .IsUnique();
 
                     b.ToTable("ProcedureVersions", (string)null);

@@ -21,6 +21,9 @@ public class StoredProcedureSnapshotFactory
         var result = new StoredProcedureSnapshot
         {
             ObjectId = definition.ObjectId,
+            Provider = definition.Provider,
+            RoutineType = definition.RoutineType,
+            IdentityArguments = definition.IdentityArguments,
             SchemaName = definition.SchemaName,
             ProcedureName = definition.ProcedureName,
             Definition = definition.Definition,
