@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { formatTime, type ScanSummary, type Status } from '../api'
 
 interface HeaderProps {
@@ -7,9 +8,10 @@ interface HeaderProps {
   scanError: string | null
   lastScanResult: ScanSummary | null
   onScan: () => void
+  nav: ReactNode
 }
 
-export function Header({ status, statusError, scanning, scanError, lastScanResult, onScan }: HeaderProps) {
+export function Header({ status, statusError, scanning, scanError, lastScanResult, onScan, nav }: HeaderProps) {
   const db = status?.database
   const scan = status?.scan
   const connected = db?.connected ?? false
@@ -27,6 +29,8 @@ export function Header({ status, statusError, scanning, scanError, lastScanResul
       <div className="brand">
         SQL <span>TIME MACHINE</span>
       </div>
+
+      {nav}
 
       <div className="meta" title={connection}>
         <span className={`dot ${connected && !statusError ? 'ok' : 'bad'}`} />

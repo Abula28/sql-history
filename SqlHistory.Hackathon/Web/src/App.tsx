@@ -3,9 +3,21 @@ import { api, type ScanSummary } from './api'
 import { Header } from './components/Header'
 import { RoutineList } from './components/RoutineList'
 import { RoutinePanel } from './components/RoutinePanel'
+import { PerformanceView } from './features/performance/PerformanceView'
+import { PlanView } from './features/query-plans/PlanView'
+import { TracesView } from './features/tracing/TracesView'
 import { useApi } from './useApi'
 
 const STATUS_POLL_MS = 10_000
+
+type View = 'routines' | 'performance' | 'plans' | 'traces'
+
+const views: { id: View; label: string }[] = [
+  { id: 'routines', label: 'Routines' },
+  { id: 'performance', label: 'Performance' },
+  { id: 'plans', label: 'Query Plans' },
+  { id: 'traces', label: 'Traces' },
+]
 
 function readSelectedFromHash(): string | null {
   const match = window.location.hash.match(/^#routine=(.+)$/)
@@ -22,6 +34,17 @@ export default function App() {
   const routines = useApi(() => api.routines(), [refreshKey])
 
   const [selectedId, setSelectedId] = useState<string | null>(readSelectedFromHash)
+  const [view, setView] = useState<View>('routines')
+  const [planKey, setPlanKey] = useState<string | null>(null)
+
+  const openRoutine = (id: string) => {
+    setSelectedId(id)
+    setView('routines')
+  }
+  const openPlan = (key: string) => {
+    setPlanKey(key)
+    setView('plans')
+  }
   const [scanning, setScanning] = useState(false)
   const [scanError, setScanError] = useState<string | null>(null)
   const [lastScanResult, setLastScanResult] = useState<ScanSummary | null>(null)
@@ -66,9 +89,22 @@ export default function App() {
         scanError={scanError}
         lastScanResult={lastScanResult}
         onScan={scan}
+        nav={
+          <nav className="views">
+            {views.map((v) => (
+              <button key={v.id} className={v.id === view ? 'active' : ''} onClick={() => setView(v.id)}>
+                {v.label}
+              </button>
+            ))}
+          </nav>
+        }
       />
 
-      <div className="body">
+      {view === 'performance' && <main className="main"><PerformanceView onOpenRoutine={openRoutine} /></main>}
+      {view === 'plans' && <main className="main"><PlanView key={planKey ?? ''} initialKey={planKey} onOpenRoutine={openRoutine} /></main>}
+      {view === 'traces' && <main className="main"><TracesView onOpenRoutine={openRoutine} /></main>}
+
+      <div className="body" hidden={view !== 'routines'}>
         <RoutineList
           routines={routines.data}
           loading={routines.loading}
@@ -85,6 +121,9 @@ export default function App() {
               refreshKey={refreshKey}
               status={status.data}
               onRestored={refresh}
+              onOpenRoutine={openRoutine}
+              onOpenTraces={() => setView('traces')}
+              onOpenPlan={openPlan}
             />
           ) : (
             <div className="empty">
