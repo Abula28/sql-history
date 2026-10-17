@@ -1,11 +1,19 @@
 <Solution>
+  <Folder Name="/hackathon/">
+    <Project Path="SqlHistory.Hackathon/AiAnalysis/SqlHistory.Hackathon.AiAnalysis.csproj" />
+    <Project Path="SqlHistory.Hackathon/Api/SqlHistory.Hackathon.Api.csproj" />
+    <Project Path="SqlHistory.Hackathon/Tests/SqlHistory.Hackathon.Tests.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SqlHistory.Cli/SqlHistory.Cli.csproj" />
     <Project Path="src/SqlHistory.Core/SqlHistory.Core.csproj" />
+    <Project Path="src/SqlHistory.PostgreSql/SqlHistory.PostgreSql.csproj" />
     <Project Path="src/SqlHistory.SqlServer/SqlHistory.SqlServer.csproj" />
     <Project Path="src/SqlHistory.Storage.Sqlite/SqlHistory.Storage.Sqlite.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="SqlHistory.Core.Tests/SqlHistory.Core.Tests.csproj" />
+    <Project Path="SqlHistory.PostgreSql.Tests/SqlHistory.PostgreSql.Tests.csproj" />
+    <Project Path="SqlHistory.Storage.Sqlite.Tests/SqlHistory.Storage.Sqlite.Tests.csproj" />
   </Folder>
 </Solution>
