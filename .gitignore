@@ -19,3 +19,6 @@ Thumbs.db
 *.db
 *.db-shm
 *.db-wal
+
+## Local secrets
+.env.local
