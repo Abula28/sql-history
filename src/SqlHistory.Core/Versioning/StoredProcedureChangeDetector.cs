@@ -4,7 +4,7 @@ namespace SqlHistory.Core.Versioning;
 
 public class StoredProcedureChangeDetector
 {
-    public ProcedureChangeStatus Detect(StoredProcedureSnapshot? prev, StoredProcedureSnapshot curr)
+    public ProcedureChangeStatus Detect(StoredProcedureVersion? prev, StoredProcedureSnapshot curr)
     {
         if (prev == null) return ProcedureChangeStatus.New;
 

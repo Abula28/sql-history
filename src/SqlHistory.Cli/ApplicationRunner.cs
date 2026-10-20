@@ -28,6 +28,7 @@ public sealed class ApplicationRunner
             .GetStoredProceduresAsync(cancellationToken);
 
 
+        Console.WriteLine();
         if (procedures.Count == 0)
         {
             Console.WriteLine("No stored procedures were found.");
@@ -49,21 +50,8 @@ public sealed class ApplicationRunner
             var foundProc = await _storedProcedureHistoryRepository.GetLatestVersionAsync(snapshot.SchemaName,
                 snapshot.ProcedureName, cancellationToken);
 
-            var prevSnapshot = foundProc == null
-                ? null
-                : new StoredProcedureSnapshot
-                {
-                    ObjectId = foundProc.ObjectId,
-                    SchemaName = foundProc.SchemaName,
-                    ProcedureName = foundProc.ProcedureName,
-                    Definition = foundProc.Definition,
-                    DefinitionHash = foundProc.DefinitionHash,
-                    CreatedAt = foundProc.CreatedAt,
-                    ModifiedAt = foundProc.ModifiedAt,
-                    CapturedAtUtc = foundProc.CapturedAtUtc
-                };
 
-            var detect = _storedProcedureChangeDetector.Detect(prevSnapshot, snapshot);
+            var detect = _storedProcedureChangeDetector.Detect(foundProc, snapshot);
 
             switch (detect)
             {
@@ -81,6 +69,7 @@ public sealed class ApplicationRunner
                     break;
                 case ProcedureChangeStatus.Unchanged:
                     unchangedProceduresCount++;
+                    PrintInfo(foundProc!, ProcedureChangeStatus.Unchanged);
                     break;
             }
         }
@@ -97,13 +86,15 @@ public sealed class ApplicationRunner
     private static void PrintInfo(StoredProcedureVersion snapshot, ProcedureChangeStatus status)
     {
         Console.WriteLine(
-            $"[{status.ToString()}] {snapshot.SchemaName}.{snapshot.ProcedureName}");
+            $"[{status.ToString().ToUpper()}] {snapshot.SchemaName}.{snapshot.ProcedureName}");
 
-        Console.WriteLine($"Version: {snapshot.VersionNumber}");
+        if (status != ProcedureChangeStatus.Unchanged)
+        {
+            Console.WriteLine($"Version: {snapshot.VersionNumber}");
 
-        Console.WriteLine(
-            $"Hash: {snapshot.DefinitionHash[..12]}");
-
-        Console.WriteLine();
+            Console.WriteLine(
+                $"Hash: {snapshot.DefinitionHash[..12]}");
+            Console.WriteLine();
+        }
     }
 }

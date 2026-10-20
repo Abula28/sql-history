@@ -16,15 +16,15 @@ public class StoredProcedureChangeDetectorTests
 
         Assert.Equal(ProcedureChangeStatus.New, result);
     }
-    
-    
+
+
     [Fact]
     public void Detect_ShouldReturnUnchanged_WhenHashesAreEqual()
     {
         // Arrange
         var detector = new StoredProcedureChangeDetector();
 
-        var previous = CreateSnapshot("ABC");
+        var previous = CreateVersion("ABC");
         var current = CreateSnapshot("ABC");
 
         // Act
@@ -35,15 +35,15 @@ public class StoredProcedureChangeDetectorTests
             ProcedureChangeStatus.Unchanged,
             result);
     }
-    
-    
+
+
     [Fact]
     public void Detect_ShouldReturnModified_WhenHashesAreDifferent()
     {
         // Arrange
         var detector = new StoredProcedureChangeDetector();
 
-        var previous = CreateSnapshot("ABC");
+        var previous = CreateVersion("ABC");
         var current = CreateSnapshot("XYZ");
 
         // Act
@@ -54,15 +54,15 @@ public class StoredProcedureChangeDetectorTests
             ProcedureChangeStatus.Modified,
             result);
     }
-    
-    
+
+
     [Fact]
     public void Detect_ShouldIgnoreModifiedAt_WhenHashesAreEqual()
     {
         // Arrange
         var detector = new StoredProcedureChangeDetector();
 
-        var previous = CreateSnapshot("ABC") with
+        var previous = CreateVersion("ABC") with
         {
             ModifiedAt = new DateTime(2026, 1, 1)
         };
@@ -80,9 +80,8 @@ public class StoredProcedureChangeDetectorTests
             ProcedureChangeStatus.Unchanged,
             result);
     }
-    
-    
-    
+
+
     [Fact]
     public void Create_ShouldUseTimeProviderForCapturedAtUtc()
     {
@@ -109,7 +108,7 @@ public class StoredProcedureChangeDetectorTests
             expectedTime.UtcDateTime,
             snapshot.CapturedAtUtc);
     }
-    
+
     [Fact]
     public void Create_ShouldProduceSameHash_ForSameDefinition()
     {
@@ -135,7 +134,24 @@ public class StoredProcedureChangeDetectorTests
             firstSnapshot.DefinitionHash,
             secondSnapshot.DefinitionHash);
     }
-    
+
+    private static StoredProcedureVersion CreateVersion(string hash)
+    {
+        return new StoredProcedureVersion
+        {
+            Id = 2,
+            VersionNumber = 1,
+            ObjectId = 1,
+            SchemaName = "dbo",
+            ProcedureName = "GetUsers",
+            Definition = "SELECT 1;",
+            DefinitionHash = hash,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+            CapturedAtUtc = DateTime.UtcNow
+        };
+    }
+
     private static StoredProcedureSnapshot CreateSnapshot(string hash)
     {
         return new StoredProcedureSnapshot
@@ -150,7 +166,7 @@ public class StoredProcedureChangeDetectorTests
             CapturedAtUtc = DateTime.UtcNow
         };
     }
-    
+
     [Fact]
     public void Create_ShouldProduceDifferentHash_WhenDefinitionChanges()
     {
@@ -174,7 +190,7 @@ public class StoredProcedureChangeDetectorTests
             firstSnapshot.DefinitionHash,
             secondSnapshot.DefinitionHash);
     }
-    
+
     [Fact]
     public void Create_ShouldProduceSameHash_ForCrLfAndLfDefinitions()
     {

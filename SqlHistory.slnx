@@ -7,5 +7,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="SqlHistory.Core.Tests/SqlHistory.Core.Tests.csproj" />
+    <Project Path="SqlHistory.Storage.Sqlite.Tests/SqlHistory.Storage.Sqlite.Tests.csproj" />
   </Folder>
 </Solution>
