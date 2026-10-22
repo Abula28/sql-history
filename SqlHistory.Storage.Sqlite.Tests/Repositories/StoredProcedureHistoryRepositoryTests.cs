@@ -4,9 +4,8 @@ using SqlHistory.Storage.Sqlite.Repositories;
 
 namespace SqlHistory.Storage.Sqlite.Tests.Repositories;
 
-public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
+public class StoredProcedureHistoryRepositoryTests : SqliteTestBase
 {
-    
     [Fact]
     public async Task MigrateAsync_ShouldBeIdempotent()
     {
@@ -17,17 +16,17 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
 
         await dbContext.Database.MigrateAsync();
     }
-    
+
     [Fact]
     public async Task GetLatestVersionAsync_ShouldReturnNull_WhenNoVersionsExist()
     {
         await using var dbContext = CreateDbContext();
-        
+
         var repository = new StoredProcedureHistoryRepository(dbContext);
 
         var result = await repository.GetLatestVersionAsync("dbo", "GetUsers");
-        
-        
+
+
         Assert.Null(result);
     }
 
@@ -38,14 +37,14 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
             CreateDbContext();
 
         var snapShot = CreateSnapshot();
-        
+
         var repository = new StoredProcedureHistoryRepository(dbContext);
         var result = await repository.AddVersionAsync(snapShot);
-        
+
         Assert.NotNull(result);
     }
-    
-    
+
+
     [Fact]
     public async Task AddVersionAsync_ShouldCreateVersionOne_WhenNoPreviousVersionsExist()
     {
@@ -64,7 +63,7 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
         // Assert
         Assert.Equal(1, result.VersionNumber);
     }
-    
+
     [Fact]
     public async Task AddVersionAsync_ShouldIncrementVersionNumber_ForSameProcedure()
     {
@@ -93,8 +92,8 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
         Assert.Equal(1, version1.VersionNumber);
         Assert.Equal(2, version2.VersionNumber);
     }
-    
-    
+
+
     [Fact]
     public async Task AddVersionAsync_ShouldKeepIndependentVersionNumbers_PerProcedure()
     {
@@ -134,7 +133,7 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
         Assert.Equal(2, secondUsers.VersionNumber);
         Assert.Equal(1, firstOrders.VersionNumber);
     }
-    
+
     [Fact]
     public async Task GetLatestVersionAsync_ShouldReturnHighestVersion()
     {
@@ -165,7 +164,7 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
         Assert.Equal(3, latest.VersionNumber);
         Assert.Equal("HASH3", latest.DefinitionHash);
     }
-    
+
     [Fact]
     public async Task AddVersionAsync_ShouldPreserveDefinitionHash()
     {
@@ -197,7 +196,35 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
             loaded.DefinitionHash);
     }
     
-    
+    [Fact]
+    public async Task AddVersionAsync_ShouldPreserveNullDefinition()
+    {
+        // Arrange
+        await using var dbContext = CreateDbContext();
+
+        var repository =
+            new StoredProcedureHistoryRepository(dbContext);
+
+        var snapshot =
+            CreateSnapshot() with
+            {
+                Definition = null
+            };
+
+        // Act
+        await repository.AddVersionAsync(snapshot);
+
+        var loaded =
+            await repository.GetLatestVersionAsync(
+                snapshot.SchemaName,
+                snapshot.ProcedureName);
+
+        // Assert
+        Assert.NotNull(loaded);
+        Assert.Null(loaded.Definition);
+    }
+
+
     [Fact]
     public async Task StoredVersion_ShouldPersistAcrossDbContextInstances()
     {
@@ -230,7 +257,7 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
             snapshot.DefinitionHash,
             loaded.DefinitionHash);
     }
-    
+
     [Fact]
     public async Task AddVersionAsync_ShouldPreserveCapturedAtUtc()
     {
@@ -266,9 +293,13 @@ public class StoredProcedureHistoryRepositoryTests: SqliteTestBase
         Assert.Equal(
             expected,
             loaded.CapturedAtUtc);
+
+        Assert.Equal(
+            DateTimeKind.Utc, 
+            loaded.CapturedAtUtc.Kind);
     }
-    
-    
+
+
     private static StoredProcedureSnapshot CreateSnapshot(
         string procedureName = "GetUsers",
         string definitionHash = "ABC123")

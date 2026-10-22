@@ -24,11 +24,14 @@ internal class StoredProcedureVersionConfiguration : IEntityTypeConfiguration<St
 
         builder.Property(x => x.DefinitionHash).IsRequired().HasMaxLength(64);
 
-        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.Property(x => x.CreatedAt).IsRequired()
+            .HasConversion(value => value, value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
 
-        builder.Property(x => x.ModifiedAt).IsRequired();
+        builder.Property(x => x.ModifiedAt).IsRequired()
+            .HasConversion(value => value, value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
 
-        builder.Property(x => x.CapturedAtUtc).IsRequired();
+        builder.Property(x => x.CapturedAtUtc).IsRequired()
+            .HasConversion(value => value, value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
 
         builder.HasIndex(x => new
         {
@@ -36,7 +39,7 @@ internal class StoredProcedureVersionConfiguration : IEntityTypeConfiguration<St
             x.ProcedureName,
             x.VersionNumber
         }).IsUnique();
-        
+
         builder.HasIndex(x => new
         {
             x.SchemaName,
